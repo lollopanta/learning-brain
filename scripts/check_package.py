@@ -16,6 +16,11 @@ def main():
     assert manifest["license"] == "GPL-3.0-only"
     assert "hooks" not in manifest
     assert not (plugin / "hooks/hooks.json").exists(), "Hooks must remain opt-in"
+    assert (plugin / "scripts/run.py").is_file()
+    marketplace = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text())
+    assert marketplace["name"] == "learning-brain-local"
+    entry = next(item for item in marketplace["plugins"] if item["name"] == manifest["name"])
+    assert (ROOT / entry["source"]["path"]).resolve() == plugin.resolve()
     skills = list((plugin / "skills").glob("*/SKILL.md"))
     assert len(skills) == 2
     for path in skills:

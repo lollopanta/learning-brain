@@ -89,6 +89,8 @@ potrebbe essere già pubblicata. Non cancellare il journal e non forzare una rev
 Il pacchetto locale è in [`integrations/codex/`](integrations/codex/README.md). Contiene le skill
 `brain-debrief` e `brain-recall`. Gli esempi degli hook registrano solo riferimenti a sessioni:
 `drain` li acquisisce nella coda, senza invocare un modello o applicare note.
+La [guida d'installazione](docs/installation.md) descrive runtime persistente, marketplace e
+verifiche da eseguire nel client dopo il riavvio.
 
 Il [template del vault](templates/vault/AGENTS.md) è per nuovi vault. Il vault esistente richiede
 un piano di migrazione dedicato: questa repository non applica correzioni retroattive.

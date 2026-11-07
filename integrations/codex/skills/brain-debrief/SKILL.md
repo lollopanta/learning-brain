@@ -8,8 +8,10 @@ description: >-
 
 # Brain debrief
 
-Use the installed `learning-brain` CLI and the explicit TOML path in
-`LEARNING_BRAIN_CONFIG` (or the user's supplied config). Start with doctor. If the executable,
+Resolve [../../scripts/run.py](../../scripts/run.py) relative to this skill directory. Invoke it
+as `python3 <absolute-runner-path> <command> ...`; it locates the user-installed CLI and explicit
+TOML through `~/.config/learning-brain/runtime.json` (or XDG_CONFIG_HOME). LEARNING_BRAIN_CONFIG
+can override the registered TOML. Start with doctor. If the executable,
 configuration, or supported obsidian-wiki release is unavailable, report the missing prerequisite;
 do not silently write notes by hand or modify installed wiki skills.
 

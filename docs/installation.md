@@ -1,0 +1,52 @@
+# Installazione locale e verifica dopo il riavvio
+
+## Componenti persistenti
+
+La repository distribuisce il marketplace `.agents/plugins/marketplace.json`, che punta alla
+root del plugin `integrations/codex`. Registrazione e installazione si eseguono con il CLI Codex:
+
+```sh
+codex plugin marketplace add /absolute/path/to/learning-brain --json
+codex plugin add learning-brain@learning-brain-local --json
+codex plugin list --json
+```
+
+Il runtime Python è un'installazione distinta e persistente del pacchetto. Per l'installazione
+personale, usare una directory dedicata sotto `~/.local/share/learning-brain/`, una configurazione
+TOML sotto `~/.config/learning-brain/` e la registrazione `runtime.json` descritta nel README del
+plugin. Usare percorsi assoluti per CLI e obsidian-wiki. Non inserire questi file personali in Git.
+
+Le skill invocano il launcher incluso nel plugin. Il launcher legge la registrazione da XDG_CONFIG_HOME
+oppure `~/.config`; non dipende dal PATH del terminale, dall'attivazione di una virtualenv o dalla
+directory corrente. Il runtime installato è una copia del pacchetto: modificare la repository non
+aggiorna automaticamente il runtime. Ricostruire/reinstallare il pacchetto quando cambia il core.
+
+## Verifica eseguita prima del riavvio
+
+Installazione locale effettuata il 2026-11-07 con Codex CLI 0.167.0:
+
+- Il CLI elenca learning-brain@learning-brain-local come installed=true, enabled=true.
+- La cache installata contiene entrambe le skill e il launcher condiviso.
+- Il launcher della cache supera doctor in un ambiente con il solo PATH di sistema.
+- Il runtime trova obsidian-wiki 2026.10.2 e la superficie di memoria adottata.
+- La suite passa 51 test: 47 del core e 4 per risoluzione del runtime/config senza PATH applicativo.
+- Nessun hook viene registrato; la configurazione del vault viene soltanto letta.
+
+Questa verifica non dimostra ancora che una sessione Codex già aperta abbia aggiornato il proprio
+catalogo di skill. Il client può conservare il catalogo fino al riavvio/nuova sessione.
+
+## Dopo il riavvio
+
+1. Verificare che learning-brain sia presente e attivo nel catalogo plugin del client.
+2. Verificare che siano disponibili brain-recall e brain-debrief, senza duplicati.
+3. Invocare brain-recall per una domanda già coperta dal vault; verificare il launcher effettivamente
+   usato, le citazioni, il limite del contesto e l'assenza di scritture alla conoscenza.
+4. Eseguire il ciclo di debrief con una fixture/vault di prova, controllando proposta, revisione,
+   applicazione, replay e recupero. Il test non deve pubblicare fixture nel vault personale.
+5. Registrare separatamente eventuali problemi di discovery, esecuzione o qualità semantica.
+
+L'installazione non abilita la pubblicazione automatica e non sostituisce il pilot semantico.
+Gli hook richiedono un'attivazione successiva e la relativa revisione del client.
+
+Riferimenti: [CLI plugin](https://learn.chatgpt.com/docs/cli/reference) e
+[marketplace locali](https://developers.openai.com/plugins/build/plugins).

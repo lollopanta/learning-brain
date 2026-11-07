@@ -5,9 +5,24 @@ repository con `pip install -e .` nell'ambiente scelto. Non viene incluso un ser
 vengono duplicate le 40 skill wiki installate.
 
 1. Preparare e verificare una configurazione locale con `learning-brain --config <file> doctor`.
-2. Rendere il CLI disponibile all'agente e impostare `LEARNING_BRAIN_CONFIG` al percorso TOML.
-3. Installare questa directory tramite una sorgente plugin locale supportata dalla superficie
-   Codex in uso. Il manifest non registra hook; le skill sono brain-debrief e brain-recall.
+2. Installare il CLI in un ambiente Python persistente e registrare i percorsi locali in
+   `~/.config/learning-brain/runtime.json` (oppure sotto XDG_CONFIG_HOME):
+
+   ```json
+   {"schema_version": 1, "executable": "/absolute/runtime/bin/learning-brain", "config": "/absolute/config.toml"}
+   ```
+
+   Il file è personale e non va in Git. `scripts/run.py` legge questa registrazione: le skill
+   funzionano anche se l'app riavviata non eredita il PATH del terminale. Il TOML dovrebbe usare
+   un wiki_command assoluto. LEARNING_BRAIN_CONFIG rimane un override opzionale.
+3. Dalla root della repository, registrare e installare il marketplace locale:
+
+   ```sh
+   codex plugin marketplace add . --json
+   codex plugin add learning-brain@learning-brain-local --json
+   ```
+
+   Il manifest non registra hook; le skill sono brain-debrief e brain-recall.
 4. Verificare il caricamento in una sessione nuova e usare prima un vault di prova.
 
 La presenza dei file non prova il caricamento nel client. Le capacità e procedure del client

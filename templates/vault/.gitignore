@@ -1,0 +1,5 @@
+.learning-brain.lock
+.memory.lock
+.manifest.lock
+.obsidian/workspace*.json
+.DS_Store

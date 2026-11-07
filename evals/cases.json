@@ -1,0 +1,12 @@
+[
+  {"id": "replay", "tests": ["test_replayed_acquisition_has_no_duplicate_job", "test_replay_publication_does_not_repeat_finalization"]},
+  {"id": "active-session", "tests": ["test_active_session_append_only_acquires_delta", "test_partial_last_line_is_not_checkpointed"]},
+  {"id": "source-integrity", "tests": ["test_rewritten_source_does_not_advance_checkpoint", "test_truncated_source_is_a_conflict"]},
+  {"id": "evidence-boundary", "tests": ["test_evidence_must_match_exact_acquired_text", "test_assistant_evidence_cannot_be_labelled_user_stated"]},
+  {"id": "private-instructions", "tests": ["test_reasoning_instructions_and_tool_outputs_are_excluded", "test_known_secret_patterns_are_redacted_before_storage"]},
+  {"id": "concurrent-edit", "tests": ["test_changed_live_note_is_not_overwritten", "test_stale_review_token_cannot_publish_new_proposal"]},
+  {"id": "restart", "tests": ["test_crash_after_each_file_is_recoverable", "test_partial_batch_recovers_without_rewriting_completed_pages"]},
+  {"id": "dependency-failure", "tests": ["test_adapter_failure_preserves_recoverable_intent", "test_qmd_failure_reports_pending_without_changing_publication"]},
+  {"id": "no-value", "tests": ["test_skip_records_reason_and_is_terminal", "test_review_and_prepare_never_write_to_vault"]},
+  {"id": "checkpoint-only", "tests": ["test_hook_only_records_a_reference_and_never_touches_vault", "test_hook_respects_plan_mode_and_recursion_guard"]}
+]

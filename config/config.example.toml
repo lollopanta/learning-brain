@@ -1,0 +1,10 @@
+# Copy to config/local.toml (gitignored). Resolve relative paths against this file.
+# Create these directories first. Do not point state_dir inside the vault.
+vault = "~/brain"
+state_dir = "~/.local/state/learning-brain/personal"
+source_roots = ["~/.codex/sessions", "~/.codex/archived_sessions"]
+wiki_command = ["obsidian-wiki"]
+# Search refresh is opt-in: QMD's configured collection must exclude _raw/, _staging/,
+# _archives/, _meta/, generated output, and index/log/hot before enabling this.
+qmd_command = []
+max_capture_bytes = 2000000

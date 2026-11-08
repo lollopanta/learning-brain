@@ -22,13 +22,22 @@ def main():
     assert manifest["hooks"] == "./hooks/hooks.json"
     assert manifest["skills"] == "./skills/"
     bootstrap = json.loads((plugin / "hooks/hooks.json").read_text())
-    assert set(bootstrap["hooks"]) == {"SessionStart", "SubagentStart", "UserPromptSubmit"}
+    assert set(bootstrap["hooks"]) == {
+        "SessionStart",
+        "SubagentStart",
+        "UserPromptSubmit",
+        "Stop",
+        "SessionEnd",
+    }
     for groups in bootstrap["hooks"].values():
         for group in groups:
             for hook in group["hooks"]:
                 assert hook["type"] == "command"
-                assert hook["timeout"] <= 3
-                assert hook["command"] == 'python3 "${PLUGIN_ROOT}/hooks/load_skills.py"'
+                assert hook["command"] in {
+                    'python3 "${PLUGIN_ROOT}/hooks/load_skills.py"',
+                    'python3 "${PLUGIN_ROOT}/hooks/automatic.py"',
+                }
+                assert hook["timeout"] <= 15
     assert (plugin / "hooks/load_skills.py").is_file()
     assert (plugin / "scripts/run.py").is_file()
     marketplace = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text())
@@ -55,7 +64,7 @@ def main():
             {
                 "static_package": "pass",
                 "skills": len(skills),
-                "hook_discovery": "skill bootstrap only; publication disabled",
+                "hook_discovery": "bootstrap and opt-in acquisition/debrief; publication disabled",
                 "client_installation": "not tested",
             }
         )

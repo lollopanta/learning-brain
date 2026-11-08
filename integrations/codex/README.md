@@ -80,3 +80,20 @@ Dopo installazione, eseguire dalla repository `python3 scripts/check_codex_disco
 interroga hooks/list in un app-server locale, senza chiamare un modello, approvare hook o
 modificare la configurazione di trust. Richiede esattamente tre hook attivi del plugin.
 Lo stato `untrusted` prova che sono rilevati ma attendono la revisione; non equivale a esecuzione.
+
+## Automazione 0.2.0
+
+Sette handler su cinque eventi: bootstrap skill a SessionStart/SubagentStart/UserPromptSubmit;
+bridge runtime a SessionStart/UserPromptSubmit/Stop/SessionEnd. Non aggiungere il recorder di
+esempio: il bridge acquisisce già i delta. Configurare automation="review" nel TOML personale
+per autorizzare acquisizione e preparazione; off disabilita il lavoro automatico del runtime.
+Dopo l'aggiornamento rivedere gli handler cambiati nel client. Enabled non significa trusted.
+
+Il primo evento ancora una sessione mai acquisita al presente; la cronologia precedente non viene
+importata. Per escludere una sessione usare il launcher con automation-pause SESSION_ID.
+Le nuove proposte vengono preparate dall'agente corrente attraverso un solo richiamo Stop:
+non viene lanciato un modello di background. Non si garantisce che il modello segua sempre le
+istruzioni o trovi tutti i fatti utili. La revisione riguarda diff, fonti e token prima di apply.
+
+SessionEnd senza permission_mode viene ignorato: Codex può ometterlo, e non deduciamo
+il permesso di acquisire una sessione plan. Gli Stop ordinari restano il percorso principale.

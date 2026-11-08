@@ -17,8 +17,11 @@ class Config:
     wiki_command: tuple[str, ...] = ("obsidian-wiki",)
     qmd_command: tuple[str, ...] = ()
     max_capture_bytes: int = 2_000_000
+    automation: str = "off"
 
     def __post_init__(self):
+        if self.automation not in ("off", "review"):
+            raise BrainError("automation must be off or review")
         object.__setattr__(self, "vault", self.vault.expanduser().resolve())
         object.__setattr__(self, "state", self.state.expanduser().resolve())
         object.__setattr__(
@@ -47,6 +50,7 @@ def load(path: Path) -> Config:
         "wiki_command",
         "qmd_command",
         "max_capture_bytes",
+        "automation",
     }
     if set(data) - allowed:
         raise BrainError(f"Unknown config keys: {sorted(set(data) - allowed)}")
@@ -93,4 +97,6 @@ def load(path: Path) -> Config:
     limit = data.get("max_capture_bytes", 2_000_000)
     if type(limit) is not int or not 1024 <= limit <= 50_000_000:
         raise BrainError("max_capture_bytes must be an integer between 1024 and 50000000")
-    return Config(vault, state, roots, wiki, command("qmd_command", []), limit)
+    return Config(
+        vault, state, roots, wiki, command("qmd_command", []), limit, data.get("automation", "off")
+    )

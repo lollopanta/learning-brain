@@ -21,7 +21,7 @@ sono registrati in `evals/results/baseline.md`; la CI verifica solo gli ambienti
 La verifica aggiuntiva del plugin installato e i difetti corretti in alpha 0.1.1 sono descritti
 in `evals/results/quality-2026-11-08.md`. Non sostituiscono il pilot umano.
 
-## Gate prima dell'uso automatico sul vault personale
+## Gate prima della pubblicazione automatica sul vault personale
 
 Pilot di almeno dieci sessioni rappresentative, con revisione umana e domande di recupero.
 Soglie iniziali da mantenere fisse durante quel pilot:
@@ -50,3 +50,10 @@ consolidamento editoriale, propagazione delle correzioni e portabilità Windows.
 
 La replica di uno stesso fatto in chat, snapshot e nota non conta come tre prove indipendenti.
 La prima versione non dichiara deduplicazione semantica automatica o atomicità multi-file.
+
+## Preparazione automatica 0.2.0
+
+Disponibili: acquisizione opt-in, baseline senza import storico, una continuazione Stop per turno,
+pausa persistente per sessione e acquisizione SessionEnd senza modello. La pubblicazione resta
+manuale e il gate semantico non è soddisfatto. La suite sintetica verifica le proprietà meccaniche;
+la qualità delle proposte automatiche nelle sessioni reali resta da misurare.

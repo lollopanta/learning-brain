@@ -61,3 +61,11 @@ Il controllo `scripts/check_codex_discovery.py` verifica hooks/list del runtime 
 distingue discovery, enabled e trust. Dopo aggiornamento ricaricare/riavviare il client e
 rivedere i tre hook Learning Brain visibili in /hooks. Se non compaiono, non limitarsi a
 ripetere il riavvio: eseguire il controllo di discovery e confrontare runtime/ambiente.
+
+## Attivazione 0.2.0
+
+Nel TOML personale impostare automation = "review"; il valore predefinito è off.
+Installare runtime e plugin aggiornati, riavviare e rivedere i nuovi hook. Eseguire
+scripts/check_codex_discovery.py (sette handler su cinque eventi) e scripts/check_automation.py
+con --plugin-root e --runtime assoluti: il secondo usa solo sorgenti sintetiche e un vault temporaneo.
+La prova sintetica non dimostra la selezione semantica automatica nel client riavviato.

@@ -17,6 +17,8 @@ def context(event):
         "to capture transcripts or publish notes. Keep evidence, uncertainty and review gates. "
         "Respect the user's current scope and permission mode. "
         "Subagents must return proposed findings to their parent, not publish independently."
+        " When the user has enabled automation=review, follow the separate automation "
+        "context to prepare proposals proactively; publishing still requires review."
     )
     if event == "UserPromptSubmit":
         return (

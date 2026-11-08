@@ -72,3 +72,12 @@ corrente. Mostra summary e stato con fonte, poi richiede lettura integrale delle
 Il filtro non sceglie automaticamente quale fonte abbia ragione. Una frase supportata da una
 quote esatta può essere comunque una parafrasi errata: la corrispondenza testuale non è un
 validatore semantico e il token di revisione non autentica una valutazione umana.
+
+## Preparazione automatica 0.2.0
+
+Abilitare automation=review autorizza l'acquisizione locale dei nuovi messaggi nelle source root
+configurate e la preparazione proattiva delle proposte. Non autorizza apply, aumento di confidence,
+profilazione o pubblicazione automatica. Il richiamo del contesto avviene solo se pertinente al task.
+L'utente può escludere una sessione prima dello Stop; automation-pause registra tale esclusione.
+Il prefisso [learning-brain:auto-debrief:v1] è riservato alle richieste sintetiche e viene escluso
+dalle prove user. Le risposte di manutenzione non sono nuove evidenze dei fatti discussi.

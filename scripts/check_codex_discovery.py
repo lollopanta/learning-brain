@@ -87,9 +87,9 @@ def main():
         for hook in entry["hooks"]
         if hook.get("pluginId") == "learning-brain@learning-brain-local"
     ]
-    expected = {"sessionStart", "subagentStart", "userPromptSubmit"}
-    if len(hooks) != 3 or {hook["eventName"] for hook in hooks} != expected:
-        raise SystemExit("FAIL: Codex did not discover the three Learning Brain hooks")
+    expected = {"sessionStart", "subagentStart", "userPromptSubmit", "stop", "sessionEnd"}
+    if len(hooks) != 7 or {hook["eventName"] for hook in hooks} != expected:
+        raise SystemExit("FAIL: Codex did not discover the seven Learning Brain handlers")
     if any(not hook["enabled"] for hook in hooks):
         raise SystemExit("FAIL: a Learning Brain hook is disabled")
     print(

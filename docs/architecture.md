@@ -18,6 +18,7 @@ SQLite, copie ridotte dei messaggi acquisiti, percorsi locali e richieste hook v
 | `publishing.py` | Lock per vault, intento persistente, verifiche e ripresa |
 | `adapters.py` | Comandi pubblici di obsidian-wiki e refresh QMD separato |
 | `retrieval.py` | Filtro del pack JSON: sole note, stato disputed esplicito, budget e copertura |
+| `automation.py` | Baseline, acquisizione opt-in, pausa e singola continuazione Stop |
 | `hooks.py` | Registrazione facoltativa di richieste, senza leggere il transcript |
 | `cli.py` | Comandi manuali, output JSON, nessuna chiamata LLM |
 
@@ -84,3 +85,30 @@ successo della pubblicazione. Nessun embedding o modello viene scaricato automat
 Gli hook del plugin iniettano solo istruzioni delle skill: complete a SessionStart/SubagentStart,
 un richiamo a UserPromptSubmit. Non chiamano il core, non leggono il vault e non acquisiscono
 transcript. Restano distinti dal recorder facoltativo e dalla pubblicazione revisionata.
+
+## Automazione opt-in 0.2.0
+
+Il default resta off. Con `automation="review"`, SessionStart/UserPromptSubmit stabiliscono
+una baseline per sessioni mai acquisite e iniettano routing e job pendenti (massimo dieci).
+La baseline registra solo path/cursore/hash, senza copiare i messaggi storici; preserva eventuali
+checkpoint manuali già esistenti. Se manca l'evento iniziale, il primo Stop crea la baseline e
+segnala il gap anziché importare tutta la cronologia. Massimo 50 MB per la baseline automatica.
+
+Stop acquisisce un intervallo limitato da max_capture_bytes. Solo se ci sono nuovi messaggi
+supportati e job queued restituisce decision=block con una richiesta di debrief all'agente
+corrente. Il turno viene marcato prima della risposta, e stop_hook_active impedisce ricorsione.
+Il messaggio sintetico ha un prefisso riservato escluso dal parser delle prove user; le risposte
+di manutenzione sono comunque dati non verificati e non vanno trasformate in conoscenza.
+Una pausa per sessione impedisce ulteriori acquisizioni automatiche, preservando la coda esistente.
+
+SessionEnd acquisisce soltanto se permission_mode è esplicito e non plan; se il client
+lo omette non deduce il permesso e lascia il lavoro agli Stop. Non può avviare distillazione: i job restano queued per una ripresa.
+Nessun hook avvia codex exec, un subagente o un daemon. Il core non pubblica mai da hook.
+La selezione semantica, il recall pertinente e la produzione della proposta sono istruzioni
+all'agente, non garanzie deterministiche. Bundle staged che toccano lo stesso target richiedono
+una revisione prima di preparare l'aggiornamento concorrente; gli altri job restano queued.
+
+Il bridge esegue il runtime registrato con argv, non shell; timeout core 8s (SessionEnd 2s),
+bridge 10s e hook 15s (SessionEnd 3s). Errori/timeout lasciano un avviso e il percorso manuale;
+non equivalgono a debrief riuscito. SQLite e i checkpoint rimangono transazionali. Il lock
+locale dell'automazione serializza le invocazioni senza attendere altri hook concorrenti.

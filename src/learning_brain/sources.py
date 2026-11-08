@@ -70,12 +70,17 @@ def visible_message(event: dict, start: int, end: int) -> dict | None:
     ]
     if not parts:
         return None
+    text = "\n".join(parts)
+    # Reserved prefix for the synthetic user prompt created by our Stop continuation.
+    # It must never become user evidence in a later acquisition.
+    if role == "user" and text.startswith("[learning-brain:auto-debrief:v1]"):
+        return None
     return {
         "id": f"b{start}-{end}",
         "role": role,
         "start": start,
         "end": end,
-        "text": redact("\n".join(parts)),
+        "text": redact(text),
     }
 
 

@@ -3,10 +3,26 @@ name: brain-debrief
 description: >-
   Preserve durable findings, decisions, corrections, and open threads from a Codex session
   through Learning Brain's evidence-linked proposal and review workflow. Use when saving
-  session learning or processing its pending queue; use brain-recall for read-only retrieval.
+  session learning, processing its pending queue, or automatically preparing findings when
+  automation=review is enabled; use brain-recall for read-only retrieval.
 ---
 
 # Brain debrief
+
+When the user has enabled automation=review, prepare useful proposals proactively from the
+queued jobs indicated by the automation hook. This authorizes preparation, not publication.
+The Stop hook can request one maintenance continuation after the ordinary task is finished.
+Keep it brief: inspect evidence, stage useful findings, and present one review batch. Do not
+reacquire the session during that continuation. Skip jobs with no durable value and never
+use automatic maintenance requests/replies as user facts. The reserved synthetic request
+prefix `[learning-brain:auto-debrief:v1]` is excluded by the capture parser.
+
+Read existing staged jobs before proposing. If a pending bundle already touches a target,
+defer a new conflicting update as queued until that bundle is resolved; never silently
+replace an already presented review token. Report deferred jobs once with the review batch.
+If the user asks not to remember a session, run `automation-pause <session-id>` before the next
+capture. This persists the exclusion for that session; existing acquired jobs remain and are
+not deleted or published. In plan mode do not acquire or stage automatically.
 
 Resolve [../../scripts/run.py](../../scripts/run.py) relative to this skill directory. Invoke it
 as `python3 <absolute-runner-path> <command> ...`; it locates the user-installed CLI and explicit

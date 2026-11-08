@@ -8,3 +8,6 @@ wiki_command = ["obsidian-wiki"]
 # _archives/, _meta/, generated output, and index/log/hot before enabling this.
 qmd_command = []
 max_capture_bytes = 2000000
+
+# Opt-in automatic acquisition + proposed debrief. Never automatically publishes.
+automation = "off" # or "review"

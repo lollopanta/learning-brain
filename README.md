@@ -4,11 +4,12 @@ Aggiornamenti del second brain con fonti rintracciabili, proposte revisionabili 
 un'interruzione. Il modello sceglie cosa vale la pena ricordare; il codice gestisce acquisizione,
 revisioni, coda e pubblicazione.
 
-**Stato: alpha 0.1.3.** Il workflow manuale è implementato. La valutazione automatica usa dati
+**Stato: alpha 0.2.0.** Il workflow con preparazione automatica e pubblicazione revisionata è implementato. La valutazione automatica usa dati
 sintetici; il pilot semantico sulle sessioni reali resta da eseguire con revisione umana.
-Il plugin include hook di caricamento skill per SessionStart, SubagentStart e UserPromptSubmit.
-Richiedono la revisione di attendibilità nel client. Non acquisiscono sessioni e non pubblicano
-memoria; non modificano il vault o le configurazioni globali Codex/Orca/Superset.
+Il plugin carica le skill e include automazione opt-in (`automation = "review"` nel TOML).
+A fine turno acquisisce i nuovi messaggi e può richiedere una sola continuazione all'agente per
+preparare le proposte; SessionEnd acquisisce senza avviare un modello. La pubblicazione resta
+revisionata. I nuovi hook richiedono trust nel client; nessuna configurazione globale viene riscritta.
 
 ## Flusso
 
@@ -88,9 +89,12 @@ potrebbe essere già pubblicata. Non cancellare il journal e non forzare una rev
 ## Plugin e hook
 
 Il pacchetto locale è in [`integrations/codex/`](integrations/codex/README.md). Contiene le skill
-`brain-debrief` e `brain-recall`. Gli hook attivi caricano istruzioni e un breve richiamo per prompt,
-senza invocare il runtime. Gli esempi separati di checkpoint registrano solo riferimenti a sessioni:
-`drain` li acquisisce nella coda, senza invocare un modello o applicare note.
+`brain-debrief` e `brain-recall`. Con automazione off vengono caricate solo le istruzioni.
+Con `automation = "review"`, il runtime stabilisce il cursore iniziale senza importare la cronologia,
+acquisisce delta a Stop e chiede all'agente corrente di preparare un debrief revisionabile.
+Il recall pertinente e la selezione dei contenuti restano affidati all'agente, guidato dalle skill.
+Per escludere la sessione: `automation-pause SESSION_ID`. Per disabilitare tutto: `automation = "off"`.
+Gli esempi separati di recorder restano facoltativi e non vanno aggiunti agli hook attivi.
 La [guida d'installazione](docs/installation.md) descrive runtime persistente, marketplace e
 verifiche da eseguire nel client dopo il riavvio.
 
@@ -113,6 +117,7 @@ richiesta esplicita di leggere la fonte completa, così un vecchio paragrafo non
 # Dopo installazione del plugin, discovery tramite API del vero Codex (nessun modello):
 .venv/bin/python scripts/check_codex_discovery.py
 .venv/bin/python scripts/demo.py
+.venv/bin/python scripts/check_automation.py --plugin-root /absolute/installed-plugin --runtime /absolute/runtime/bin/learning-brain
 # Prova comportamentale tramite launcher installato, con dati sintetici e vault temporaneo:
 .venv/bin/python scripts/quality_check.py --runner /absolute/installed-plugin/scripts/run.py
 ```

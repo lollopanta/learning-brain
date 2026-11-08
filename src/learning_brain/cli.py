@@ -33,6 +33,9 @@ def parser():
     cap = sub.add_parser("capture", help="acquire a bounded, complete JSONL prefix")
     cap.add_argument("transcript", type=Path)
     sub.add_parser("drain", help="acquire checkpoint requests; never distill or publish")
+    sub.add_parser("automation-hook", help="opt-in hook protocol on stdin; never publishes")
+    paused = sub.add_parser("automation-pause", help="pause automatic acquisition for one session")
+    paused.add_argument("session")
     for name in ("inspect", "review"):
         cmd = sub.add_parser(name)
         cmd.add_argument("job")
@@ -51,6 +54,22 @@ def parser():
 
 def execute(args):
     config = load(args.config)
+    if args.command == "automation-hook":
+        from .automation import handle
+
+        try:
+            raw = sys.stdin.read(1_048_577)
+            if len(raw) > 1_048_576:
+                raise BrainError("Automation input exceeds 1 MiB")
+            return handle(config, json.loads(raw))
+        except (BrainError, OSError, ValueError, TypeError) as exc:
+            return {
+                "systemMessage": f"Learning Brain automation incomplete: {type(exc).__name__}; use manual debrief."
+            }
+    if args.command == "automation-pause":
+        from .automation import pause
+
+        return pause(config, args.session)
     if args.command == "doctor":
         adapter = WikiAdapter(config)
         return {
@@ -59,6 +78,8 @@ def execute(args):
             "state": str(config.state),
             "adapter": adapter.preflight(),
             "qmd_configured": bool(config.qmd_command),
+            "automation": config.automation,
+            "automatic_publication": False,
             "hooks": "not installed by this command",
             "semantic_pilot": "requires separate human evaluation",
         }

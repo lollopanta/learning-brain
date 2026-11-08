@@ -11,12 +11,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def main():
     plugin = ROOT / "integrations/codex"
-    manifest = json.loads((plugin / "plugin.json").read_text())
+    # Codex 0.167.0 deliberately skips hooks for portable AgentPlugin manifests.
+    # A root plugin.json would take precedence and silently disable our hook discovery.
+    assert not (plugin / "plugin.json").exists(), "Keep the hook-capable compatibility layout"
+    manifest = json.loads((plugin / ".codex-plugin/plugin.json").read_text())
     assert manifest["name"] == "learning-brain"
     project = tomllib.loads((ROOT / "pyproject.toml").read_text())
     assert manifest["version"] == project["project"]["version"]
     assert manifest["license"] == "GPL-3.0-only"
-    assert "hooks" not in manifest
+    assert manifest["hooks"] == "./hooks/hooks.json"
+    assert manifest["skills"] == "./skills/"
     bootstrap = json.loads((plugin / "hooks/hooks.json").read_text())
     assert set(bootstrap["hooks"]) == {"SessionStart", "SubagentStart", "UserPromptSubmit"}
     for groups in bootstrap["hooks"].values():

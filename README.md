@@ -4,7 +4,7 @@ Aggiornamenti del second brain con fonti rintracciabili, proposte revisionabili 
 un'interruzione. Il modello sceglie cosa vale la pena ricordare; il codice gestisce acquisizione,
 revisioni, coda e pubblicazione.
 
-**Stato: alpha 0.1.2.** Il workflow manuale è implementato. La valutazione automatica usa dati
+**Stato: alpha 0.1.3.** Il workflow manuale è implementato. La valutazione automatica usa dati
 sintetici; il pilot semantico sulle sessioni reali resta da eseguire con revisione umana.
 Il plugin include hook di caricamento skill per SessionStart, SubagentStart e UserPromptSubmit.
 Richiedono la revisione di attendibilità nel client. Non acquisiscono sessioni e non pubblicano
@@ -110,6 +110,8 @@ richiesta esplicita di leggere la fonte completa, così un vecchio paragrafo non
 .venv/bin/python -m unittest discover -s tests -v
 .venv/bin/python scripts/evaluate.py
 .venv/bin/python scripts/check_package.py
+# Dopo installazione del plugin, discovery tramite API del vero Codex (nessun modello):
+.venv/bin/python scripts/check_codex_discovery.py
 .venv/bin/python scripts/demo.py
 # Prova comportamentale tramite launcher installato, con dati sintetici e vault temporaneo:
 .venv/bin/python scripts/quality_check.py --runner /absolute/installed-plugin/scripts/run.py

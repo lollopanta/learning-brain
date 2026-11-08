@@ -52,3 +52,12 @@ Il trust non è implicito nell’installazione. Non abilitiamo Stop/SessionEnd n
 
 Riferimenti: [CLI plugin](https://learn.chatgpt.com/docs/cli/reference) e
 [marketplace locali](https://developers.openai.com/plugins/build/plugins).
+
+## Correzione discovery 0.1.3
+
+Il formato portabile della 0.1.2 caricava skill ma non hook in Codex CLI 0.167.0.
+La 0.1.3 usa il manifest di compatibilità `.codex-plugin/plugin.json` senza root `plugin.json`.
+Il controllo `scripts/check_codex_discovery.py` verifica hooks/list del runtime effettivo:
+distingue discovery, enabled e trust. Dopo aggiornamento ricaricare/riavviare il client e
+rivedere i tre hook Learning Brain visibili in /hooks. Se non compaiono, non limitarsi a
+ripetere il riavvio: eseguire il controllo di discovery e confrontare runtime/ambiente.

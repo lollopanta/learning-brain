@@ -22,7 +22,7 @@ vengono duplicate le 40 skill wiki installate.
    codex plugin add learning-brain@learning-brain-local --json
    ```
 
-   La discovery standard trova hooks/hooks.json: carica brain-debrief e brain-recall.
+   Il manifest .codex-plugin/plugin.json dichiara esplicitamente hooks/hooks.json e skills/.
    Gli hook richiedono revisione e trust nel client.
 4. Verificare il caricamento in una sessione nuova e usare prima un vault di prova.
 
@@ -68,3 +68,15 @@ Contratto verificato con la [documentazione ufficiale degli hook](https://learn.
 e il [packaging plugin](https://developers.openai.com/plugins/build/plugins). Il processo hook
 è testabile isolatamente; discovery, trust e consegna al modello richiedono una nuova sessione
 nel client. Non modificare direttamente il database di trust per saltarne la revisione.
+
+## Compatibilità discovery 0.1.3
+
+Codex CLI 0.167.0 esclude intenzionalmente gli hook dei manifest portabili AgentPlugin,
+anche quando dichiarati in extensions.com.openai. Il pacchetto usa quindi soltanto
+`.codex-plugin/plugin.json` con `hooks` e `skills` espliciti. Non aggiungere root `plugin.json`:
+avrebbe precedenza e riprodurrebbe il difetto. Il controllo package verifica questa scelta.
+
+Dopo installazione, eseguire dalla repository `python3 scripts/check_codex_discovery.py`:
+interroga hooks/list in un app-server locale, senza chiamare un modello, approvare hook o
+modificare la configurazione di trust. Richiede esattamente tre hook attivi del plugin.
+Lo stato `untrusted` prova che sono rilevati ma attendono la revisione; non equivale a esecuzione.

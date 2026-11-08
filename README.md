@@ -4,10 +4,11 @@ Aggiornamenti del second brain con fonti rintracciabili, proposte revisionabili 
 un'interruzione. Il modello sceglie cosa vale la pena ricordare; il codice gestisce acquisizione,
 revisioni, coda e pubblicazione.
 
-**Stato: alpha 0.1.1.** Il workflow manuale è implementato. La valutazione automatica usa dati
+**Stato: alpha 0.1.2.** Il workflow manuale è implementato. La valutazione automatica usa dati
 sintetici; il pilot semantico sulle sessioni reali resta da eseguire con revisione umana.
-Gli hook sono opzionali e non sono attivati dal plugin. Nessuna installazione modifica il vault
-o le configurazioni Codex/Orca/Superset automaticamente.
+Il plugin include hook di caricamento skill per SessionStart, SubagentStart e UserPromptSubmit.
+Richiedono la revisione di attendibilità nel client. Non acquisiscono sessioni e non pubblicano
+memoria; non modificano il vault o le configurazioni globali Codex/Orca/Superset.
 
 ## Flusso
 
@@ -87,7 +88,8 @@ potrebbe essere già pubblicata. Non cancellare il journal e non forzare una rev
 ## Plugin e hook
 
 Il pacchetto locale è in [`integrations/codex/`](integrations/codex/README.md). Contiene le skill
-`brain-debrief` e `brain-recall`. Gli esempi degli hook registrano solo riferimenti a sessioni:
+`brain-debrief` e `brain-recall`. Gli hook attivi caricano istruzioni e un breve richiamo per prompt,
+senza invocare il runtime. Gli esempi separati di checkpoint registrano solo riferimenti a sessioni:
 `drain` li acquisisce nella coda, senza invocare un modello o applicare note.
 La [guida d'installazione](docs/installation.md) descrive runtime persistente, marketplace e
 verifiche da eseguire nel client dopo il riavvio.

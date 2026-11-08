@@ -46,7 +46,9 @@ catalogo di skill. Il client può conservare il catalogo fino al riavvio/nuova s
 5. Registrare separatamente eventuali problemi di discovery, esecuzione o qualità semantica.
 
 L'installazione non abilita la pubblicazione automatica e non sostituisce il pilot semantico.
-Gli hook richiedono un'attivazione successiva e la relativa revisione del client.
+Dalla 0.1.2 il plugin distribuisce hook di solo caricamento skill: dopo aggiornamento e
+riavvio/nuova sessione, rivedere e considerare attendibili le definizioni nel client.
+Il trust non è implicito nell’installazione. Non abilitiamo Stop/SessionEnd né pubblicazione.
 
 Riferimenti: [CLI plugin](https://learn.chatgpt.com/docs/cli/reference) e
 [marketplace locali](https://developers.openai.com/plugins/build/plugins).

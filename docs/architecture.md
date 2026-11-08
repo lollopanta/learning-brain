@@ -78,3 +78,9 @@ successo della pubblicazione. Nessun embedding o modello viene scaricato automat
   soltanto come usarlo per questo workflow.
 - Il processo LLM è la sessione agente corrente; nessun daemon e nessuna API key richiesta.
 - QMD è opzionale e disattivato di default, finché le collezioni non separano fonti e wiki.
+
+## Bootstrap Codex 0.1.2
+
+Gli hook del plugin iniettano solo istruzioni delle skill: complete a SessionStart/SubagentStart,
+un richiamo a UserPromptSubmit. Non chiamano il core, non leggono il vault e non acquisiscono
+transcript. Restano distinti dal recorder facoltativo e dalla pubblicazione revisionata.

@@ -17,7 +17,15 @@ def main():
     assert manifest["version"] == project["project"]["version"]
     assert manifest["license"] == "GPL-3.0-only"
     assert "hooks" not in manifest
-    assert not (plugin / "hooks/hooks.json").exists(), "Hooks must remain opt-in"
+    bootstrap = json.loads((plugin / "hooks/hooks.json").read_text())
+    assert set(bootstrap["hooks"]) == {"SessionStart", "SubagentStart", "UserPromptSubmit"}
+    for groups in bootstrap["hooks"].values():
+        for group in groups:
+            for hook in group["hooks"]:
+                assert hook["type"] == "command"
+                assert hook["timeout"] <= 3
+                assert hook["command"] == 'python3 "${PLUGIN_ROOT}/hooks/load_skills.py"'
+    assert (plugin / "hooks/load_skills.py").is_file()
     assert (plugin / "scripts/run.py").is_file()
     marketplace = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text())
     assert marketplace["name"] == "learning-brain-local"
@@ -43,7 +51,7 @@ def main():
             {
                 "static_package": "pass",
                 "skills": len(skills),
-                "hook_discovery": "disabled",
+                "hook_discovery": "skill bootstrap only; publication disabled",
                 "client_installation": "not tested",
             }
         )

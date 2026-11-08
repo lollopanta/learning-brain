@@ -14,7 +14,7 @@
 | Interoperabilità reale | Demo con manifest, indice, snapshot, todo, log e lint |
 | Isolamento | Stato esterno al vault, allowlist fonti, path traversal/symlink rifiutati |
 | Privacy minima | Nessun contenuto reale in Git; system/developer/reasoning/tool output esclusi |
-| Plugin | Manifest e skill verificati staticamente; hook di esempio non scoperti automaticamente |
+| Plugin | Manifest e skill verificati staticamente; hook di bootstrap skill; checkpoint di esempio non attivi |
 
 Questi criteri sono esercitati dalla suite e dalla demo. I risultati locali, con comandi e limiti,
 sono registrati in `evals/results/baseline.md`; la CI verifica solo gli ambienti che ha realmente eseguito.
@@ -40,7 +40,7 @@ un nuovo set di valutazione; non modificare il gold set per far passare il siste
 ## Stato e lavoro residuo
 
 Implementati: core manuale, coda, proposte, open thread, recupero, adattatore, contesto e plugin
-di skill. Disponibile ma non installato: recorder hook di riferimenti. Nessuna pubblicazione
+di skill, con bootstrap istruzioni dalla 0.1.2. Disponibile ma non installato: recorder hook di riferimenti. Nessuna pubblicazione
 automatica è implementata o abilitata. Il recorder non trasforma un checkpoint in conoscenza.
 
 Da validare con l'utente: pilot semantico reale e utilità del contesto in una nuova sessione;

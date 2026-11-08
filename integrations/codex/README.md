@@ -22,7 +22,8 @@ vengono duplicate le 40 skill wiki installate.
    codex plugin add learning-brain@learning-brain-local --json
    ```
 
-   Il manifest non registra hook; le skill sono brain-debrief e brain-recall.
+   La discovery standard trova hooks/hooks.json: carica brain-debrief e brain-recall.
+   Gli hook richiedono revisione e trust nel client.
 4. Verificare il caricamento in una sessione nuova e usare prima un vault di prova.
 
 La presenza dei file non prova il caricamento nel client. Le capacità e procedure del client
@@ -47,3 +48,23 @@ periodico via capture resta necessario. `drain` acquisisce solo i riferimenti re
 
 Per disabilitare, rimuovere la sorgente hook attivata o disattivarla nel client. I dati del vault
 e la coda rimangono. Non sono previsti script che cancellano automaticamente questi dati.
+
+## Caricamento skill dalla 0.1.2
+
+SessionStart (anche resume/compact/fork) e SubagentStart includono i testi effettivi delle due
+skill, con percorsi assoluti per risolvere i riferimenti. UserPromptSubmit aggiunge soltanto un
+richiamo breve al routing: non duplica i testi completi a ogni turno. Non usa keyword matching
+sul prompt, non copia conoscenza del vault nel contesto e non promette che il modello esegua
+una skill su ogni richiesta. Per richieste estranee al second brain non avvia workflow.
+
+Il comando usa Python standard, non importa il runtime e ignora il testo del prompt e non legge transcript o vault.
+Legge solo i file skill inclusi nel plugin. Input invalido o skill mancanti producono output
+vuoto e un avviso stderr senza bloccare la richiesta. Nessuna coda o stato di deduplicazione:
+ogni nuovo contesto riceve le istruzioni, incluso dopo compaction. I subagenti restituiscono
+risultati al parent e non pubblicano autonomamente. Disabilitando il plugin si disabilitano
+questi hook; i checkpoint Stop/SessionEnd restano esempi non attivi.
+
+Contratto verificato con la [documentazione ufficiale degli hook](https://learn.chatgpt.com/docs/hooks)
+e il [packaging plugin](https://developers.openai.com/plugins/build/plugins). Il processo hook
+è testabile isolatamente; discovery, trust e consegna al modello richiedono una nuova sessione
+nel client. Non modificare direttamente il database di trust per saltarne la revisione.

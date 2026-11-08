@@ -4,7 +4,7 @@ Aggiornamenti del second brain con fonti rintracciabili, proposte revisionabili 
 un'interruzione. Il modello sceglie cosa vale la pena ricordare; il codice gestisce acquisizione,
 revisioni, coda e pubblicazione.
 
-**Stato: alpha 0.1.0.** Il workflow manuale è implementato. La valutazione automatica usa dati
+**Stato: alpha 0.1.1.** Il workflow manuale è implementato. La valutazione automatica usa dati
 sintetici; il pilot semantico sulle sessioni reali resta da eseguire con revisione umana.
 Gli hook sono opzionali e non sono attivati dal plugin. Nessuna installazione modifica il vault
 o le configurazioni Codex/Orca/Superset automaticamente.
@@ -95,6 +95,10 @@ verifiche da eseguire nel client dopo il riavvio.
 Il [template del vault](templates/vault/AGENTS.md) è per nuovi vault. Il vault esistente richiede
 un piano di migrazione dedicato: questa repository non applica correzioni retroattive.
 
+Le correzioni nuove vengono mostrate prima del testo storico. Nel recall per argomento vengono
+esclusi file di servizio e note archiviate; le note disputed mostrano metadati e summary con una
+richiesta esplicita di leggere la fonte completa, così un vecchio paragrafo non riemerge come stato corrente.
+
 ## Verifiche riproducibili
 
 ```sh
@@ -105,6 +109,8 @@ un piano di migrazione dedicato: questa repository non applica correzioni retroa
 .venv/bin/python scripts/evaluate.py
 .venv/bin/python scripts/check_package.py
 .venv/bin/python scripts/demo.py
+# Prova comportamentale tramite launcher installato, con dati sintetici e vault temporaneo:
+.venv/bin/python scripts/quality_check.py --runner /absolute/installed-plugin/scripts/run.py
 ```
 
 L'ultima verifica richiede il vero `obsidian-wiki`, crea un vault temporaneo e ne controlla

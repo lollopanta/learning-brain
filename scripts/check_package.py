@@ -1,6 +1,7 @@
 """Static plugin/skill checks; this does not claim installation in a Codex client."""
 
 import json
+import tomllib
 from pathlib import Path
 
 import yaml
@@ -12,7 +13,8 @@ def main():
     plugin = ROOT / "integrations/codex"
     manifest = json.loads((plugin / "plugin.json").read_text())
     assert manifest["name"] == "learning-brain"
-    assert manifest["version"] == "0.1.0"
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text())
+    assert manifest["version"] == project["project"]["version"]
     assert manifest["license"] == "GPL-3.0-only"
     assert "hooks" not in manifest
     assert not (plugin / "hooks/hooks.json").exists(), "Hooks must remain opt-in"

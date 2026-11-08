@@ -65,21 +65,12 @@ def execute(args):
     if args.command == "refresh":
         return WikiAdapter(config).refresh_search()
     if args.command == "context":
-        if not 200 <= args.budget <= 8000:
-            raise BrainError("Context budget must be between 200 and 8000")
+        if not 256 <= args.budget <= 8000:
+            raise BrainError("Context budget must be between 256 and 8000")
         adapter = WikiAdapter(config)
         adapter.preflight()
         if args.topic:
-            result = adapter.run(
-                [
-                    "context-pack",
-                    "--vault",
-                    str(config.vault),
-                    args.topic,
-                    "--budget",
-                    str(args.budget),
-                ]
-            )
+            result = adapter.topic_context(args.topic, args.budget)
         else:
             result = adapter.run(
                 ["memory", "recap", "--vault", str(config.vault), "--max-words", "350"]

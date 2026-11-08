@@ -17,6 +17,7 @@ SQLite, copie ridotte dei messaggi acquisiti, percorsi locali e richieste hook v
 | `proposals.py` | Prove, revisioni, rendering conservativo e diff immutabile per la revisione |
 | `publishing.py` | Lock per vault, intento persistente, verifiche e ripresa |
 | `adapters.py` | Comandi pubblici di obsidian-wiki e refresh QMD separato |
+| `retrieval.py` | Filtro del pack JSON: sole note, stato disputed esplicito, budget e copertura |
 | `hooks.py` | Registrazione facoltativa di richieste, senza leggere il transcript |
 | `cli.py` | Comandi manuali, output JSON, nessuna chiamata LLM |
 
@@ -66,6 +67,11 @@ successo della pubblicazione. Nessun embedding o modello viene scaricato automat
 
 - Una proposta integra contenuto in sezioni datate e conserva il corpo preesistente. Il
   consolidamento editoriale di note cresciute troppo sarà un workflow separato e revisionabile.
+- Dalla 0.1.1 una correzione precede il testo storico nella nota. Il recall per argomento legge
+  il pack JSON pubblico del CLI: esclude servizi e note archived, e per le disputed restituisce
+  metadati/summary con una richiesta di lettura integrale anziché l'introduzione potenzialmente
+  superata. Il recap operativo resta un percorso separato. Il filtro può ridurre la copertura
+  rispetto al pack originario: i conteggi di esclusione e budget sono riportati esplicitamente.
 - Le attività aperte vengono aggiunte con prove dirette dell'utente. Chiusura automatica e
   inferenza del profilo sono escluse.
 - Il core usa il CLI di obsidian-wiki, ma non duplica le sue skill. Le skill del plugin descrivono

@@ -42,7 +42,7 @@ tramite `related`; la loro riscrittura non è automatizzata.
 Le note nuove sono `draft`, con prior convenzionale `base_confidence: 0.42`, mai presentato come
 probabilità misurata. La confidence esistente non aumenta con il numero di copie o di riepiloghi.
 Nuovo contenuto in una nota reviewed/verified invalida tale stato e la riporta draft. Una
-correzione imposta disputed e conserva il testo storico: il revisore deve leggere esplicitamente
+correzione imposta disputed e conserva il testo storico sotto la correzione corrente: il revisore deve leggere esplicitamente
 quale claim viene corretto, perché, con quale validità temporale. Non viene eseguita una
 propagazione automatica a tutti i consumer della vecchia affermazione.
 
@@ -64,3 +64,11 @@ I task che richiedono arricchimenti sensibili restano fuori dalla promozione aut
 Un job è published dopo scrittura delle note, registrazione delle fonti e completamento memory
 sync. Un errore degli indici di ricerca rimane separato. Le fonti mancanti non vengono eliminate
 dal manifest per far passare i controlli. Le operazioni di ripresa non equivalgono a nuova approvazione.
+
+## Recupero delle note contestate
+
+Il pack breve di una nota disputed non deve presentare il vecchio primo paragrafo come stato
+corrente. Mostra summary e stato con fonte, poi richiede lettura integrale delle correzioni.
+Il filtro non sceglie automaticamente quale fonte abbia ragione. Una frase supportata da una
+quote esatta può essere comunque una parafrasi errata: la corrispondenza testuale non è un
+validatore semantico e il token di revisione non autentica una valutazione umana.

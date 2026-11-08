@@ -18,6 +18,8 @@
 
 Questi criteri sono esercitati dalla suite e dalla demo. I risultati locali, con comandi e limiti,
 sono registrati in `evals/results/baseline.md`; la CI verifica solo gli ambienti che ha realmente eseguito.
+La verifica aggiuntiva del plugin installato e i difetti corretti in alpha 0.1.1 sono descritti
+in `evals/results/quality-2026-11-08.md`. Non sostituiscono il pilot umano.
 
 ## Gate prima dell'uso automatico sul vault personale
 

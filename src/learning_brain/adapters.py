@@ -6,6 +6,7 @@ import subprocess
 from .config import Config
 from .errors import BrainError
 from .fs import inside
+from .retrieval import topic_markdown
 
 
 class WikiAdapter:
@@ -111,6 +112,24 @@ class WikiAdapter:
                 ]
             )
         self.run([*args, "--vault", str(vault)])
+
+    def topic_context(self, topic: str, budget: int) -> str:
+        raw = self.run(
+            [
+                "context-pack",
+                "--vault",
+                str(self.config.vault),
+                topic,
+                "--budget",
+                str(budget),
+                "--json",
+            ]
+        )
+        try:
+            pack = json.loads(raw)
+        except ValueError as exc:
+            raise BrainError("Invalid context-pack JSON; no excerpts returned") from exc
+        return topic_markdown(pack, budget, self.config.vault)
 
     def refresh_search(self) -> dict:
         if not self.config.qmd_command:

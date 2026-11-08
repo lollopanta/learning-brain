@@ -43,6 +43,11 @@ per dichiarare un successo, non forzare il nuovo hash nel vecchio bundle.
 Il lock è advisory: applicazioni esterne non sono coordinate. La prima versione richiede una
 finestra di scrittura esclusiva per le note toccate. Un batch non è atomico fra tutti i file.
 
+L'aggiornamento a 0.1.1 non modifica i byte di bundle già approvati. Se una correzione era ancora
+staged nella 0.1.0, prepararla e revisionarla di nuovo per usare il nuovo layout. Per un job già
+publishing vale la ripresa dello stesso intento, senza cambiare il token. Il recall 0.1.1 protegge
+anche le vecchie note disputed, ma non riscrive in massa le note già pubblicate.
+
 ## Hook e recupero dei checkpoint
 
 `hooks.py` registra solo percorso/id sessione e turno. Il file di richiesta è scritto in modo

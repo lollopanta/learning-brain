@@ -35,6 +35,8 @@ retrieval, then read the current target. Prefer integrating existing knowledge. 
 actual existing note for expected_revision, null only for a new file. Include exact message IDs
 and quotes from inspect; never invent evidence or supporting links. State applicability and
 uncertainty in the claim itself. A correction names what is superseded and why.
+If a new claim supersedes an existing assertion, use correction rather than an ordinary learning
+addition: the renderer preserves the prior text as history, and recall treats the note as disputed.
 
 Run propose and review. Present the concrete note diffs, selected evidence, open threads and
 semantic caveats to the user. Apply only when the user's authorization covers those reviewed

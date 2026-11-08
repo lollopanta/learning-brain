@@ -636,6 +636,26 @@ apply(store, sys.argv[2], sys.argv[3], 'fixture-reviewer', FixtureAdapter(),
             with self.assertRaises(BrainError):
                 WikiAdapter(self.config).preflight()
 
+    def test_correction_precedes_old_intro_and_preserves_history(self):
+        target = self.vault / "concepts/storage.md"
+        target.parent.mkdir()
+        target.write_text(
+            "---\ntitle: Storage\ncategory: concepts\nlifecycle: verified\n---\n\n"
+            "# Storage\n\nA stale deployment assertion.\n\n" + "Historical detail.\n\n" * 100
+        )
+        job = self.acquire()
+        proposal = self.proposal(job, expected=revision(target))
+        proposal["updates"][0]["kind"] = "correction"
+        token = prepare(self.store, job, proposal)["review_token"]
+        self.publish(job, token)
+        header, body = parse_note(target.read_text())
+        self.assertEqual(header["lifecycle"], "disputed")
+        self.assertLess(
+            body.index("SQLite was selected"), body.index("A stale deployment assertion.")
+        )
+        self.assertIn("Previous content (historical)", body)
+        self.assertEqual(body.count("Historical detail."), 100)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -156,9 +156,12 @@ def prepare(store: Store, job_id: str, proposal: dict) -> dict:
                     else (" ^[ambiguous]" if epistemic == "unverified" else "")
                 )
                 # Flatten multiline claims to prevent them creating uncited free-form sections.
-                lines.append(
-                    f"- **{epistemic}**: {' '.join(text.splitlines())}{marker} " + " ".join(anchors)
+                label = (
+                    f"Correction ({epistemic}):" if kind == "correction" else f"- **{epistemic}**:"
                 )
+                lines.append(f"{label} {' '.join(text.splitlines())}{marker} " + " ".join(anchors))
+                if kind == "correction":
+                    lines.append("")
             lines.append("")
             related = update.get("related", [])
             if not isinstance(related, list) or len(related) > 10:
@@ -220,17 +223,26 @@ def prepare(store: Store, job_id: str, proposal: dict) -> dict:
                     "inferred": round(inferred, 4),
                     "ambiguous": round(ambiguous, 4),
                 }
-            # Insert the new section before Sources, keeping all previous body text intact.
+            # Corrections come first; preserve the previous text explicitly as history.
+            # Ordinary additions still go before Sources.
             source_headings = list(re.finditer(r"(?:^|\n)## Sources(?:\n|$)", body))
             if source_headings:
                 heading = source_headings[-1]
                 main, sources = body[: heading.start()], body[heading.end() :]
             else:
                 main, sources = body, ""
+            additions = "\n".join(lines).strip()
+            if kind == "correction":
+                title_line = re.match(r"\A(#[^\n]*)(?:\n|$)", main)
+                heading = title_line[1] if title_line else f"# {title}"
+                history = main[title_line.end() :].strip() if title_line else main.strip()
+                main = heading + "\n\n" + additions
+                if history:
+                    main += "\n\n## Previous content (historical)\n\n" + history
+            else:
+                main = main.rstrip() + "\n\n" + additions
             body = (
-                main.rstrip()
-                + "\n\n"
-                + "\n".join(lines).strip()
+                main
                 + "\n\n## Sources\n\n"
                 + sources.strip()
                 + f"\n- {snapshot_link} — selected session evidence\n"

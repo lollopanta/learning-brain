@@ -73,8 +73,13 @@ def visible_message(event: dict, start: int, end: int) -> dict | None:
     text = "\n".join(parts)
     # Reserved prefix for the synthetic user prompt created by our Stop continuation.
     # It must never become user evidence in a later acquisition.
-    if role == "user" and text.startswith("[learning-brain:auto-debrief:v1]"):
-        return None
+    if role == "user":
+        candidate = text.lstrip()
+        marker = "[learning-brain:auto-debrief:v1]"
+        if candidate.startswith(marker) or re.match(
+            r"<hook_prompt(?:\s[^>]{0,4096})?>\s*" + re.escape(marker), candidate
+        ):
+            return None
     return {
         "id": f"b{start}-{end}",
         "role": role,

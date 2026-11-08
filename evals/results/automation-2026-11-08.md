@@ -43,3 +43,16 @@ nel client riaperto e il tempo di revisione restano da misurare dopo trust dei n
 Nessun risultato sintetico è presentato come pilot indipendente su sessioni reali.
 Una citazione esatta non garantisce una sintesi corretta. Nessuna pubblicazione autonoma,
 chiusura automatica dei task o inferenza del profilo è stata abilitata.
+
+## Riscontro dal client dopo il riavvio
+
+Consegna del contesto SessionStart/UserPromptSubmit osservata e sette handler trusted.
+La continuazione Stop è stata ricevuta davvero; il debrief ha elaborato e scartato intervalli
+contenenti solo manutenzione, senza pubblicare note. Non è un pilot semantico rappresentativo.
+
+È emersa una differenza rispetto alla fixture iniziale: Codex avvolge il prompt sintetico in
+<hook_prompt ...>, quindi il solo startswith del marker non lo escludeva dal messaggio user.
+Il parser ora riconosce anche l'involucro. Un test di regressione verifica che escluda il prompt
+automatico preservando un autentico messaggio utente adiacente. Suite aggiornata: 82 test.
+La correzione è nel core Python, reinstallato localmente; file del plugin e definizioni hook
+restano invariati, senza richiedere un nuovo trust o riavvio.

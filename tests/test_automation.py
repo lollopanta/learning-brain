@@ -201,6 +201,22 @@ class AutomationTests(unittest.TestCase):
         self.assertEqual({}, handle(self.config, self.hook("Stop")))
         self.assertEqual([], self.jobs()[0]["payload"]["messages"])
 
+    def test_codex_wrapped_hook_prompt_is_excluded_but_real_user_message_survives(self):
+        self.arm()
+        self.append(
+            message(
+                "user",
+                '<hook_prompt hook_run_id="synthetic:stop">'
+                + MARKER
+                + " Automatic maintenance.</hook_prompt>",
+            )
+        )
+        self.append(message("user", "Keep the actual project decision."))
+        self.assertIn("decision", handle(self.config, self.hook("Stop")))
+        messages = self.jobs()[0]["payload"]["messages"]
+        self.assertEqual(1, len(messages))
+        self.assertEqual("Keep the actual project decision.", messages[0]["text"])
+
     def test_manual_checkpoint_is_preserved_and_empty_stop_does_not_continue(self):
         store = Store(self.config)
         try:

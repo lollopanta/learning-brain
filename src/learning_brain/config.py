@@ -20,8 +20,8 @@ class Config:
     automation: str = "off"
 
     def __post_init__(self):
-        if self.automation not in ("off", "review"):
-            raise BrainError("automation must be off or review")
+        if self.automation not in ("off", "review", "autonomous"):
+            raise BrainError("automation must be off, review or autonomous")
         object.__setattr__(self, "vault", self.vault.expanduser().resolve())
         object.__setattr__(self, "state", self.state.expanduser().resolve())
         object.__setattr__(

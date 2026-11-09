@@ -8,7 +8,7 @@ description: >-
 
 # Brain recall
 
-When automation=review is enabled, recall relevant context proactively when earlier decisions
+When automation=review or automation=autonomous is enabled, recall relevant context proactively when earlier decisions
 or project constraints can affect the current work. Derive a focused topic from the user's
 task; do not search the vault on greetings, status acknowledgements or unrelated questions.
 Call once per relevant topic and reuse the result during the turn. Never treat retrieved

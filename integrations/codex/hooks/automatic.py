@@ -7,6 +7,7 @@ from pathlib import Path
 
 
 def main():
+    payload = {}
     try:
         raw = sys.stdin.read(1_048_577)
         if len(raw) > 1_048_576:
@@ -27,8 +28,21 @@ def main():
         output = json.loads(result.stdout)
         if not isinstance(output, dict):
             raise ValueError("Invalid runtime response")
+        if payload.get("hook_event_name") in ("Stop", "SessionEnd"):
+            # Enforce the UX contract even if a runtime regression returns a continuation.
+            if output:
+                print(
+                    "Learning Brain tail output suppressed; inspect runtime diagnostics.",
+                    file=sys.stderr,
+                )
+            print("{}")
+            return
         print(json.dumps(output))
     except (OSError, ValueError, subprocess.TimeoutExpired):
+        if isinstance(payload, dict) and payload.get("hook_event_name") in ("Stop", "SessionEnd"):
+            print("Learning Brain capture deferred; inspect runtime diagnostics.", file=sys.stderr)
+            print("{}")
+            return
         print(
             json.dumps(
                 {"systemMessage": "Learning Brain automation unavailable; use manual debrief."}

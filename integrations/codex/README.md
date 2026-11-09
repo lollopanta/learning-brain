@@ -97,3 +97,13 @@ istruzioni o trovi tutti i fatti utili. La revisione riguarda diff, fonti e toke
 
 SessionEnd senza permission_mode viene ignorato: Codex può ometterlo, e non deduciamo
 il permesso di acquisire una sessione plan. Gli Stop ordinari restano il percorso principale.
+
+## Modalità silenziosa 0.3.0
+
+Le procedure Stop di continuazione nelle sezioni storiche 0.2.0 sono sostituite da capture
+silenziosa. Nessun handler di fine turno deve generare decision=block o messaggi nella UI.
+Il lavoro semantico viene svolto prima della risposta finale: con autonomous l'agente esegue
+propose, autorevisione e apply del token esatto senza approvazioni per nota; con review
+rimane la revisione dell'utente. Nessuna quota di note e nessun messaggio per job skipped.
+La delega esplicita si configura nel TOML personale; la distribuzione mantiene off come default.
+Il trust degli hook aggiornati è un passaggio del client distinto dalle scelte sulle note.

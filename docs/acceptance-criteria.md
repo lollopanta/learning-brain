@@ -57,3 +57,11 @@ Disponibili: acquisizione opt-in, baseline senza import storico, una continuazio
 pausa persistente per sessione e acquisizione SessionEnd senza modello. La pubblicazione resta
 manuale e il gate semantico non è soddisfatto. La suite sintetica verifica le proprietà meccaniche;
 la qualità delle proposte automatiche nelle sessioni reali resta da misurare.
+
+## Scelta esplicita autonoma 0.3.0
+
+Su richiesta del proprietario, autonomous delega la revisione ordinaria all'agente prima della
+risposta finale. Il pilot e le soglie precedenti restano obiettivi di qualità non ancora misurati,
+non risultati già raggiunti. L'attivazione dipende dalla scelta esplicita dell'utente, non da
+una suite verde. Stop non richiede più una continuazione, anche in review. Il test di regressione
+richiede output {} persino quando un runtime simulato restituisce decision=block o un errore.

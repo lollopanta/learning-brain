@@ -4,12 +4,18 @@ Aggiornamenti del second brain con fonti rintracciabili, proposte revisionabili 
 un'interruzione. Il modello sceglie cosa vale la pena ricordare; il codice gestisce acquisizione,
 revisioni, coda e pubblicazione.
 
-**Stato: alpha 0.2.0.** Il workflow con preparazione automatica e pubblicazione revisionata è implementato. La valutazione automatica usa dati
-sintetici; il pilot semantico sulle sessioni reali resta da eseguire con revisione umana.
-Il plugin carica le skill e include automazione opt-in (`automation = "review"` nel TOML).
-A fine turno acquisisce i nuovi messaggi e può richiedere una sola continuazione all'agente per
-preparare le proposte; SessionEnd acquisisce senza avviare un modello. La pubblicazione resta
-revisionata. I nuovi hook richiedono trust nel client; nessuna configurazione globale viene riscritta.
+**Stato: alpha 0.3.0.** La memoria può essere gestita dall'agente prima della risposta finale,
+senza debrief successivi o conferme per ogni nota. Il comportamento è configurabile:
+
+- `automation = "off"`: workflow manuale.
+- `automation = "review"`: preparazione automatica, pubblicazione dopo revisione dell'utente.
+- `automation = "autonomous"`: l'utente delega revisione e pubblicazione delle note ordinarie
+  all'agente, mantenendo fonti, token, revisioni e recupero.
+
+Il default distribuito è off. Stop acquisisce soltanto e restituisce sempre output vuoto;
+non avvia continuazioni. Il prompt successivo rende disponibili eventuali job pendenti.
+L'agente mantiene come ultima risposta visibile il risultato del task. La revisione autonoma
+non è una validazione indipendente: il pilot semantico reale rimane da misurare.
 
 ## Flusso
 
@@ -19,7 +25,7 @@ flowchart LR
   B --> C[Coda SQLite locale]
   C --> D[Proposta dell'agente]
   D --> E[Diff e prove]
-  E --> F[Revisione]
+  E --> F[Autorevisione o revisione utente]
   F --> G[Pubblicazione recuperabile]
   G --> H[Manifest e memoria]
   H --> I[Refresh ricerca opzionale]
@@ -63,7 +69,7 @@ Legge prima la nota esistente e ne calcola SHA-256; `expected_revision: null` è
 ```sh
 .venv/bin/learning-brain --config config/local.toml propose JOB_ID /percorso/proposal.json
 .venv/bin/learning-brain --config config/local.toml review JOB_ID
-# Dopo aver valutato diff, estratti e attendibilità delle affermazioni:
+# Dopo revisione dell’utente o autorevisione autorizzata dalla modalità autonomous:
 .venv/bin/learning-brain --config config/local.toml apply JOB_ID --review-token TOKEN --reviewer owner
 .venv/bin/learning-brain --config config/local.toml refresh
 ```
@@ -89,12 +95,13 @@ potrebbe essere già pubblicata. Non cancellare il journal e non forzare una rev
 ## Plugin e hook
 
 Il pacchetto locale è in [`integrations/codex/`](integrations/codex/README.md). Contiene le skill
-`brain-debrief` e `brain-recall`. Con automazione off vengono caricate solo le istruzioni.
-Con `automation = "review"`, il runtime stabilisce il cursore iniziale senza importare la cronologia,
-acquisisce delta a Stop e chiede all'agente corrente di preparare un debrief revisionabile.
-Il recall pertinente e la selezione dei contenuti restano affidati all'agente, guidato dalle skill.
-Per escludere la sessione: `automation-pause SESSION_ID`. Per disabilitare tutto: `automation = "off"`.
-Gli esempi separati di recorder restano facoltativi e non vanno aggiunti agli hook attivi.
+`brain-debrief` e `brain-recall`. L'acquisizione mantiene il cursore incrementale senza
+importare la cronologia precedente delle sessioni mai acquisite. In modalità autonomous,
+la skill gestisce una piccola selezione di note utili prima della risposta finale, senza
+messaggi di manutenzione o richieste di conferma. Il recupero pertinente e la selezione
+semantica restano lavoro dell'agente. Stop non può sostituire la risposta finale.
+Per escludere una sessione: `automation-pause SESSION_ID`. Per disabilitare l'automazione:
+`automation = "off"`. Gli esempi di recorder legacy non vanno aggiunti agli hook attivi.
 La [guida d'installazione](docs/installation.md) descrive runtime persistente, marketplace e
 verifiche da eseguire nel client dopo il riavvio.
 

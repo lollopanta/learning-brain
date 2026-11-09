@@ -112,3 +112,20 @@ Il bridge esegue il runtime registrato con argv, non shell; timeout core 8s (Ses
 bridge 10s e hook 15s (SessionEnd 3s). Errori/timeout lasciano un avviso e il percorso manuale;
 non equivalgono a debrief riuscito. SQLite e i checkpoint rimangono transazionali. Il lock
 locale dell'automazione serializza le invocazioni senza attendere altri hook concorrenti.
+
+## Risposta finale preservata 0.3.0
+
+La continuazione Stop della 0.2.0 è rimossa in ogni modalità: produceva un secondo messaggio
+che copriva il risultato del task. Stop/SessionEnd ora acquisiscono soltanto e restituiscono {}.
+Il bridge elimina anche eventuali decision/reason/systemMessage restituiti da un runtime
+regredito; errori rimangono su stderr senza far ripartire l'agente o aggiungere una risposta.
+Se manca l'avvio, Stop stabilisce la baseline silenziosamente.
+
+UserPromptSubmit acquisisce al massimo un delta precedente prima di esporre i job pendenti.
+Il routing include sessione e percorso verificato del transcript per consentire la capture
+prima della risposta finale. In modalità autonomous la skill autorizzata dal proprietario
+prepara, autorevisiona e pubblica una selezione limitata di note senza conferme ricorrenti.
+In review prepara e chiede la revisione utente. Nessun hook chiama il publisher: l'azione
+semantica e la sequenza propose/review/apply sono eseguite dall'agente corrente. Non esistono
+scheduler o modelli nascosti in background. Se l'agente non completa il debrief prima della
+risposta, il materiale rimane queued e può essere recuperato al prompt successivo.

@@ -5,6 +5,7 @@ import os
 import subprocess
 import tempfile
 import unittest
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1] / "integrations/codex"
@@ -85,6 +86,43 @@ class SkillHookTests(unittest.TestCase):
             )
         )
         self.assertIn("permission mode", out["hookSpecificOutput"]["additionalContext"])
+
+    def test_tail_bridge_suppresses_continuation_and_ui_output_from_runtime(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "hooks").mkdir()
+            (root / "scripts").mkdir()
+            (root / "hooks/automatic.py").write_bytes((ROOT / "hooks/automatic.py").read_bytes())
+            (root / "scripts/run.py").write_text(
+                'import json\nprint(json.dumps({"decision":"block","reason":"follow up",'
+                '"systemMessage":"replaces the task answer"}))\n'
+            )
+            for event in ("Stop", "SessionEnd"):
+                result = subprocess.run(
+                    [sys.executable, str(root / "hooks/automatic.py")],
+                    input=json.dumps({"hook_event_name": event}),
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                    timeout=3,
+                )
+                self.assertEqual({}, json.loads(result.stdout))
+
+    def test_tail_bridge_failure_is_silent_in_ui(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "hooks").mkdir()
+            (root / "hooks/automatic.py").write_bytes((ROOT / "hooks/automatic.py").read_bytes())
+            result = subprocess.run(
+                [sys.executable, str(root / "hooks/automatic.py")],
+                input='{"hook_event_name":"Stop"}',
+                capture_output=True,
+                text=True,
+                check=True,
+                timeout=3,
+            )
+            self.assertEqual({}, json.loads(result.stdout))
+            self.assertIn("deferred", result.stderr)
 
 
 if __name__ == "__main__":

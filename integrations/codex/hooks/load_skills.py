@@ -18,7 +18,9 @@ def context(event):
         "Respect the user's current scope and permission mode. "
         "Subagents must return proposed findings to their parent, not publish independently."
         " When the user has enabled automation=review, follow the separate automation "
-        "context to prepare proposals proactively; publishing still requires review."
+        "context to prepare proposals proactively with user review. When automation=autonomous "
+        "is explicitly configured, self-review and publish routine memory updates before the "
+        "task's final answer, as described by brain-debrief. Do not add a memory-only response."
     )
     if event == "UserPromptSubmit":
         return (

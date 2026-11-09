@@ -9,5 +9,5 @@ wiki_command = ["obsidian-wiki"]
 qmd_command = []
 max_capture_bytes = 2000000
 
-# Opt-in automatic acquisition + proposed debrief. Never automatically publishes.
-automation = "off" # or "review"
+# Opt-in automation: review asks for approval; autonomous delegates routine self-reviewed publication.
+automation = "off" # or "review" / "autonomous"

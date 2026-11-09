@@ -78,8 +78,7 @@ class AutomationTests(unittest.TestCase):
         self.assertEqual([], self.jobs())
         self.append(message("user", "Use SQLite for the local prototype."))
         out = handle(self.config, self.hook("Stop"))
-        self.assertEqual("block", out["decision"])
-        self.assertIn(MARKER, out["reason"])
+        self.assertEqual({}, out)
         jobs = self.jobs()
         self.assertEqual(1, len(jobs))
         self.assertNotIn("HISTORICAL_PRIVATE_SENTINEL", json.dumps(jobs))
@@ -127,19 +126,19 @@ class AutomationTests(unittest.TestCase):
     def test_repeated_stop_and_active_continuation_cannot_loop_or_capture_maintenance(self):
         self.arm()
         self.append(message("user", "A new decision."))
-        self.assertIn("decision", handle(self.config, self.hook("Stop")))
+        self.assertEqual({}, handle(self.config, self.hook("Stop")))
         size = len(self.jobs())
         self.append(message("assistant", "Maintenance reply."))
         self.assertEqual({}, handle(self.config, self.hook("Stop")))
         self.assertEqual({}, handle(self.config, self.hook("Stop", stop_hook_active=True)))
         self.assertEqual(size, len(self.jobs()))
 
-    def test_next_turn_can_continue_once(self):
+    def test_next_turn_captures_without_continuing(self):
         self.arm()
         self.append(message("user", "First decision."))
         handle(self.config, self.hook("Stop"))
         self.append(message("user", "Second decision."))
-        self.assertIn("decision", handle(self.config, self.hook("Stop", turn_id="turn-2")))
+        self.assertEqual({}, handle(self.config, self.hook("Stop", turn_id="turn-2")))
         self.assertEqual(2, len(self.jobs()))
 
     def test_session_end_acquires_without_continuing(self):
@@ -155,7 +154,7 @@ class AutomationTests(unittest.TestCase):
         self.assertFalse(self.config.state.exists())
 
     def test_stop_without_start_anchors_instead_of_importing_history(self):
-        self.assertIn("systemMessage", handle(self.config, self.hook("Stop")))
+        self.assertEqual({}, handle(self.config, self.hook("Stop")))
         self.assertEqual([], self.jobs())
 
     def test_missing_or_mismatched_identity_cannot_acquire(self):
@@ -185,7 +184,7 @@ class AutomationTests(unittest.TestCase):
         self.arm()
         with self.path.open("a") as stream:
             stream.write(full[20:])
-        self.assertIn("decision", handle(self.config, self.hook("Stop")))
+        self.assertEqual({}, handle(self.config, self.hook("Stop")))
         self.assertEqual("Complete after arm.", self.jobs()[0]["payload"]["messages"][0]["text"])
 
     def test_rewritten_source_is_rejected_without_advancing(self):
@@ -212,7 +211,7 @@ class AutomationTests(unittest.TestCase):
             )
         )
         self.append(message("user", "Keep the actual project decision."))
-        self.assertIn("decision", handle(self.config, self.hook("Stop")))
+        self.assertEqual({}, handle(self.config, self.hook("Stop")))
         messages = self.jobs()[0]["payload"]["messages"]
         self.assertEqual(1, len(messages))
         self.assertEqual("Keep the actual project decision.", messages[0]["text"])
@@ -232,3 +231,31 @@ class AutomationTests(unittest.TestCase):
     def test_invalid_automation_mode_rejected(self):
         with self.assertRaises(BrainError):
             replace(self.config, automation="publish")
+
+    def test_autonomous_routing_is_opt_in_and_hook_itself_never_publishes(self):
+        self.config = replace(self.config, automation="autonomous")
+        out = self.arm()
+        text = out["hookSpecificOutput"]["additionalContext"]
+        self.assertIn("automation=autonomous", text)
+        self.assertIn("agent:self-review", text)
+        self.assertIn(str(self.path), text)
+        self.append(message("user", "A genuine project decision."))
+        self.assertEqual({}, handle(self.config, self.hook("Stop")))
+        self.assertEqual("queued", self.jobs()[0]["state"])
+        self.assertEqual([], list(self.vault.iterdir()))
+
+    def test_review_mode_does_not_authorize_autonomous_publication(self):
+        text = self.arm()["hookSpecificOutput"]["additionalContext"]
+        self.assertIn("Never auto-apply", text)
+        self.assertNotIn("reviewer agent:self-review", text)
+
+    def test_next_prompt_recovers_prior_final_without_a_stop_followup(self):
+        self.config = replace(self.config, automation="autonomous")
+        self.arm()
+        self.append(message("assistant", "A prior task's final result."))
+        out = handle(self.config, self.hook("UserPromptSubmit", turn_id="turn-2"))
+        jobs = self.jobs()
+        self.assertEqual(1, len(jobs))
+        self.assertIn(jobs[0]["id"], out["hookSpecificOutput"]["additionalContext"])
+        self.assertEqual("A prior task's final result.", jobs[0]["payload"]["messages"][0]["text"])
+        self.assertNotIn("decision", out)

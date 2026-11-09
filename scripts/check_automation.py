@@ -12,6 +12,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--plugin-root", type=Path, required=True)
     parser.add_argument("--runtime", type=Path, required=True)
+    parser.add_argument("--mode", choices=("review", "autonomous"), default="autonomous")
     args = parser.parse_args()
     plugin = args.plugin_root.resolve()
     with tempfile.TemporaryDirectory(prefix="brain automation synthetic ") as directory:
@@ -25,7 +26,7 @@ def main():
         config = settings / "config.toml"
         config.write_text(
             f"vault = {json.dumps(str(vault))}\nstate_dir = {json.dumps(str(state))}\n"
-            f'source_roots = [{json.dumps(str(sources))}]\nautomation = "review"\n'
+            f'source_roots = [{json.dumps(str(sources))}]\nautomation = "{args.mode}"\n'
         )
         (settings / "runtime.json").write_text(
             json.dumps(
@@ -103,35 +104,41 @@ def main():
         checks = []
         append("user", "HISTORICAL_SENTINEL")
         assert (
-            "automation=review" in hook("SessionStart")["hookSpecificOutput"]["additionalContext"]
+            f"automation={args.mode}"
+            in hook("SessionStart")["hookSpecificOutput"]["additionalContext"]
         )
         assert cli("status")["jobs"] == []
         checks.append("baseline_excludes_history")
         append("user", "Use SQLite for the local prototype.")
         append("assistant", "SQLite is selected for the local prototype.")
         out = hook("Stop")
-        assert out["decision"] == "block"
+        assert out == {}
         jobs = cli("status")["jobs"]
         assert len(jobs) == 1 and jobs[0]["state"] == "queued"
         acquired = cli("inspect", jobs[0]["id"])
         assert "HISTORICAL_SENTINEL" not in json.dumps(acquired)
-        checks.append("stop_acquires_delta_and_requests_debrief")
+        checks.append("stop_acquires_silently_preserving_final_response")
         assert hook("Stop") == {}
         assert hook("Stop", stop_hook_active=True) == {}
         checks.append("continuation_cannot_loop")
         assert "queued" in hook("UserPromptSubmit")["hookSpecificOutput"]["additionalContext"]
         checks.append("pending_jobs_surface_on_next_prompt")
+        append("assistant", "Prior final response to retain as task output.")
+        next_prompt = hook("UserPromptSubmit")
+        assert "queued" in next_prompt["hookSpecificOutput"]["additionalContext"]
+        before_plan = len(cli("status")["jobs"])
+        checks.append("next_prompt_acquires_prior_final_without_followup")
         append("user", "A new user constraint.")
         assert hook("Stop", turn_id="turn-2", permission_mode="plan") == {}
-        assert len(cli("status")["jobs"]) == 1
+        assert len(cli("status")["jobs"]) == before_plan
         checks.append("plan_mode_does_not_acquire")
         assert hook("SessionEnd") == {}
-        assert len(cli("status")["jobs"]) == 2
+        assert len(cli("status")["jobs"]) == before_plan + 1
         checks.append("session_end_captures_without_model")
         cli("automation-pause", "synthetic")
         append("user", "EXCLUDED_SENTINEL")
         assert hook("Stop", turn_id="turn-3") == {}
-        assert len(cli("status")["jobs"]) == 2
+        assert len(cli("status")["jobs"]) == before_plan + 1
         checks.append("session_pause_preserves_exclusion")
         assert list(vault.iterdir()) == []
         checks.append("personal_and_synthetic_vaults_untouched")
@@ -141,6 +148,7 @@ def main():
                     "installed_automation": "pass",
                     "checks": checks,
                     "synthetic": True,
+                    "mode": args.mode,
                     "model_started": False,
                     "automatic_semantic_selection": "requires live client validation",
                 },

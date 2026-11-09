@@ -69,3 +69,16 @@ Installare runtime e plugin aggiornati, riavviare e rivedere i nuovi hook. Esegu
 scripts/check_codex_discovery.py (sette handler su cinque eventi) e scripts/check_automation.py
 con --plugin-root e --runtime assoluti: il secondo usa solo sorgenti sintetiche e un vault temporaneo.
 La prova sintetica non dimostra la selezione semantica automatica nel client riavviato.
+
+## Modalità autonoma 0.3.0
+
+Impostare automation = "autonomous" nel TOML personale per delegare all'agente la pubblicazione
+ordinaria dopo autorevisione. Il default del pacchetto resta off; review rimane disponibile.
+L'aggiornamento del runtime elimina immediatamente i decision=block da Stop, anche per il
+vecchio bridge. Per caricare istruzioni e protezione del bridge aggiornate, reinstallare il
+plugin e rivedere una volta gli handler nuovi/modificati nel client. Non è una richiesta di
+approvazione delle singole note e non va aggirato il trust degli hook.
+
+check_automation.py supporta --mode autonomous e --mode review. Verifica che Stop non generi
+continuazioni e che la capture successiva recuperi la precedente risposta finale. La verifica
+delle decisioni semantiche dell'agente richiede uso reale: non viene simulata dal test meccanico.

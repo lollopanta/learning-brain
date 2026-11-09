@@ -1,4 +1,4 @@
-"""Opt-in local capture and one bounded maintenance continuation; never publishes."""
+"""Opt-in capture and before-final routing. Hooks never continue a finished turn."""
 
 from __future__ import annotations
 
@@ -20,7 +20,23 @@ ROUTING = (
     "no explicit save request is needed for preparation. Never auto-apply. Show one concise "
     "review batch with claims, sources and tokens; wait for authorization of those changes. "
     "Skip routine or already-covered learning. If the user excludes this session from memory, "
-    "run automation-pause SESSION_ID before capture. Do not change the user's task or permission mode."
+    "run automation-pause SESSION_ID before capture. Do not change the user's task or permission mode. "
+    "Prepare memory before the task's final response; Stop will never request a continuation."
+)
+AUTONOMOUS_ROUTING = (
+    "Learning Brain automation=autonomous. The user has delegated routine memory maintenance "
+    "in the configured vault. Use relevant bounded recall at the start of substantive work. "
+    "Before the final task response, use brain-debrief for genuinely durable findings: capture "
+    "the current delta, inspect, deduplicate, propose, review the full diff and evidence yourself, "
+    "then apply the exact reviewed token with reviewer agent:self-review. Do not ask the user "
+    "to approve individual memory notes. Skip routine, redundant or weak candidates. "
+    "Keep sources and uncertainty; do not label assistant reports as verified. "
+    "Preserve revision checks, conflict handling, and recoverable publication. "
+    "Do not emit memory-only commentary, approval questions, or an extra final debrief; "
+    "the last visible answer must remain the result of the user's task. "
+    "If time or evidence is insufficient, leave work queued and finish the task normally. "
+    "If the user excludes a session, run automation-pause SESSION_ID before capture. "
+    "Respect plan mode and scope. No profile inference, automatic task closure or vault Git pushes."
 )
 
 
@@ -115,7 +131,7 @@ def handle(config, event):
     ):
         return {}
     if (
-        config.automation != "review"
+        config.automation == "off"
         or kind not in EVENTS
         or event.get("permission_mode") == "plan"
         or event.get("agent_id")
@@ -130,57 +146,36 @@ def handle(config, event):
                 return {}
             anchored = baseline(store, session, path)
             if kind in ("SessionStart", "UserPromptSubmit"):
+                if kind == "UserPromptSubmit" and not anchored:
+                    capture(store, path)
                 jobs = pending(store, session)
+                routing = AUTONOMOUS_ROUTING if config.automation == "autonomous" else ROUTING
                 return {
                     "hookSpecificOutput": {
                         "hookEventName": kind,
-                        "additionalContext": ROUTING
+                        "additionalContext": routing
                         + " Session id: "
                         + session
+                        + ". Transcript path: "
+                        + json.dumps(str(path))
                         + ". Pending jobs: "
                         + json.dumps(jobs),
                     }
                 }
             # If startup was missed, establish a baseline rather than importing history.
             if anchored:
-                return {
-                    "systemMessage": "Learning Brain baseline established; automatic capture starts next turn."
-                }
+                return {}
             if kind == "Stop":
                 turn = event.get("turn_id")
                 if not isinstance(turn, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", turn):
-                    raise BrainError("Stop needs a valid turn_id for bounded continuation")
+                    raise BrainError("Stop needs a valid turn_id for capture deduplication")
                 if value(store, "auto:last_turn:" + session) == turn:
                     return {}
-            result = capture(store, path)
+            capture(store, path)
             if kind == "SessionEnd":
                 return {}  # Acquisition only; cannot start a model on SessionEnd.
             put(store, "auto:last_turn:" + session, turn)
-            jobs = pending(store, session)
-            queued = [job["id"] for job in jobs if job["state"] == "queued"]
-            if not queued or result.get("state") != "queued":
-                return {}
-            return {
-                "decision": "block",
-                "reason": (
-                    MARKER + " Automatic memory preparation, not a statement from the user. "
-                    "Use the installed brain-debrief skill for session " + session + ". "
-                    "Inspect these acquired jobs: " + json.dumps(queued) + ". "
-                    "Prepare only durable, non-duplicate findings; skip jobs with no durable value. "
-                    "If capture reports more_available, finish bounded acquisition before synthesis. "
-                    "Do not create a competing update to a target already touched by a staged job: "
-                    "leave that new job queued and report it as deferred until review. "
-                    "Never cite this automatic request or maintenance replies as user evidence. "
-                    "Run propose and review, then show one concise review batch; never apply here. "
-                    "Do not capture again during this maintenance continuation. "
-                    "Do not start another agent or change the user's task. "
-                    "This is the only automatic continuation for this turn. "
-                    + (
-                        "More source data remains to acquire. "
-                        if result.get("more_available")
-                        else ""
-                    )
-                ),
-            }
+            return {}  # Preserve the task answer; never continue the finished turn.
+
     finally:
         store.close()

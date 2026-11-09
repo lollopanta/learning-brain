@@ -57,12 +57,18 @@ def execute(args):
     if args.command == "automation-hook":
         from .automation import handle
 
+        event = None
         try:
             raw = sys.stdin.read(1_048_577)
             if len(raw) > 1_048_576:
                 raise BrainError("Automation input exceeds 1 MiB")
-            return handle(config, json.loads(raw))
+            event = json.loads(raw)
+            return handle(config, event)
         except (BrainError, OSError, ValueError, TypeError) as exc:
+            # Tail hooks must not add messages after the task's final answer.
+            if isinstance(event, dict) and event.get("hook_event_name") in ("Stop", "SessionEnd"):
+                print(f"Learning Brain capture incomplete: {type(exc).__name__}", file=sys.stderr)
+                return {}
             return {
                 "systemMessage": f"Learning Brain automation incomplete: {type(exc).__name__}; use manual debrief."
             }
@@ -79,7 +85,7 @@ def execute(args):
             "adapter": adapter.preflight(),
             "qmd_configured": bool(config.qmd_command),
             "automation": config.automation,
-            "automatic_publication": False,
+            "automatic_publication": config.automation == "autonomous",
             "hooks": "not installed by this command",
             "semantic_pilot": "requires separate human evaluation",
         }

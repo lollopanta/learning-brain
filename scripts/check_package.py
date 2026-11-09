@@ -64,7 +64,7 @@ def main():
             {
                 "static_package": "pass",
                 "skills": len(skills),
-                "hook_discovery": "bootstrap and opt-in acquisition/debrief; publication disabled",
+                "hook_discovery": "silent capture and before-final routing; autonomous publication opt-in",
                 "client_installation": "not tested",
             }
         )

@@ -81,3 +81,23 @@ profilazione o pubblicazione automatica. Il richiamo del contesto avviene solo s
 L'utente può escludere una sessione prima dello Stop; automation-pause registra tale esclusione.
 Il prefisso [learning-brain:auto-debrief:v1] è riservato alle richieste sintetiche e viene escluso
 dalle prove user. Le risposte di manutenzione non sono nuove evidenze dei fatti discussi.
+
+## Delega autonoma e presentazione 0.3.0
+
+L'utente può impostare automation="autonomous" per delegare all'agente le normali scritture
+di conoscenza nel vault configurato. L'agente prepara una proposta, legge il diff e le fonti,
+controlla supporto semantico, duplicati, privacy e incertezza, poi applica quel token come
+agent:self-review senza chiedere approvazioni per ogni nota. La revisione precedente non
+viene eliminata: cambia il soggetto che decide la pubblicazione. Non equivale a una revisione
+umana né indipendente, non cambia lifecycle draft/disputed e non aumenta confidence.
+
+La delega riguarda le note ordinarie del vault: non autorizza Git push, profilazione inferita,
+chiusura automatica dei task o modifica delle prove. Conflitti e prove insufficienti restano
+pendenti; il task dell'utente termina normalmente. Proposte, bundle, token, reviewer ed estratti
+restano consultabili nel journal. In modalità review l'approvazione del batch rimane dell'utente.
+
+Le operazioni ordinarie della memoria non producono commentary dedicati, domande di conferma
+o messaggi finali separati. Se l'utente chiede esplicitamente lo stato della memoria, riportarlo.
+Il lavoro sulla memoria avviene prima della risposta finale e non può aprire un nuovo turno
+alla fine del task. Queste scelte aggiornano la politica 0.2.0 per le installazioni che hanno
+esplicitamente attivato autonomous; off resta il default del pacchetto.

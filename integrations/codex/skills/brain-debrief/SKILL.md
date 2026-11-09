@@ -4,22 +4,36 @@ description: >-
   Preserve durable findings, decisions, corrections, and open threads from a Codex session
   through Learning Brain's evidence-linked proposal and review workflow. Use when saving
   session learning, processing its pending queue, or automatically preparing findings when
-  automation=review is enabled; use brain-recall for read-only retrieval.
+  automation=review or automation=autonomous is enabled; use brain-recall for read-only retrieval.
 ---
 
 # Brain debrief
 
-When the user has enabled automation=review, prepare useful proposals proactively from the
-queued jobs indicated by the automation hook. This authorizes preparation, not publication.
-The Stop hook can request one maintenance continuation after the ordinary task is finished.
-Keep it brief: inspect evidence, stage useful findings, and present one review batch. Do not
-reacquire the session during that continuation. Skip jobs with no durable value and never
-use automatic maintenance requests/replies as user facts. The reserved synthetic request
-prefix `[learning-brain:auto-debrief:v1]` is excluded by the capture parser.
+The configured mode determines approval and presentation:
 
-Read existing staged jobs before proposing. If a pending bundle already touches a target,
-defer a new conflicting update as queued until that bundle is resolved; never silently
-replace an already presented review token. Report deferred jobs once with the review batch.
+- `automation=autonomous`: the user has delegated routine memory updates in this vault.
+  Process useful learning before the task's final response. Run propose, read the complete
+  review diff and evidence, critically check semantic support/privacy/uncertainty, then apply
+  the exact token with reviewer `agent:self-review`. No per-note confirmation is required.
+  This is agent self-review, not independent validation or a human-verified fact. Do not
+  announce routine memory operations, skipped jobs, tokens, or extra debrief responses.
+  Preserve the task's final answer. Report memory contents when the user asks for them.
+- `automation=review`: prepare proposals proactively before the final response and obtain
+  user approval of the concrete batch before apply.
+- `automation=off`: use the manual workflow only when requested and authorized by the user.
+
+Stop only acquires new data silently; it never requests a maintenance continuation. Pending
+jobs are surfaced at the next prompt. When there is useful learning from the current task,
+capture its transcript delta before the final response, then process a bounded batch of up to
+three useful notes. Do not keep writing an assistant report just to capture and cite it.
+Skip routine/duplicate jobs quietly. If evidence or time is insufficient, keep work queued
+and complete the user's task normally; do not start a background agent or a follow-up turn.
+Never use maintenance requests/replies as user facts. Legacy synthetic requests with reserved
+prefix `[learning-brain:auto-debrief:v1]` are excluded by the capture parser.
+
+Read current staged jobs before proposing. Resolve earlier bundles against their exact token
+under the configured approval mode before preparing another update to the same target. Never
+silently replace an already presented token, force a changed base revision or duplicate a claim.
 If the user asks not to remember a session, run `automation-pause <session-id>` before the next
 capture. This persists the exclusion for that session; existing acquired jobs remain and are
 not deleted or published. In plan mode do not acquire or stage automatically.
@@ -54,15 +68,17 @@ uncertainty in the claim itself. A correction names what is superseded and why.
 If a new claim supersedes an existing assertion, use correction rather than an ordinary learning
 addition: the renderer preserves the prior text as history, and recall treats the note as disputed.
 
-Run propose and review. Present the concrete note diffs, selected evidence, open threads and
-semantic caveats to the user. Apply only when the user's authorization covers those reviewed
-changes; obtain a single batch decision if it does not. The review token binds the full bundle;
-it is not semantic approval. Do not create or approve a different token after permission.
+Run propose and review in every mode. In autonomous mode, perform the critical review yourself
+under the user's configured delegation and apply only the exact reviewed token; leave uncertain
+or conflicting work pending instead of asking routine approval questions. In review/manual mode,
+present the concrete diff, evidence and caveats and apply only when authorization covers those
+changes. The token binds bytes; it does not prove semantic approval. Never substitute a token
+after user approval. Review and publication mechanics remain mandatory in autonomous mode.
 
 On apply failure, inspect state/recover. A publishing job may already have partial writes: resume
 only the same intent, token and reviewer after checking conflicts. Never force a new base hash,
 edit SQLite to fabricate completion, or delete partial files to hide the failure.
 
-Refresh search once after a successful batch if configured. Report published, staged, skipped,
-conflicted and search-pending results separately. Do not automatically commit/push the vault,
+Refresh search once after a successful batch if configured. When the user asks for memory status,
+distinguish published, staged, skipped, conflicted and search-pending results. Do not automatically commit/push the vault,
 close todo items, infer profile facts, or enable hooks as part of a debrief.

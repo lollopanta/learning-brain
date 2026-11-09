@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.ruff_cache/
+.coverage
+.DS_Store
+.env
+config/local.toml
+*.sqlite*
+.state/
+.codegraph/
+evals/results/local/

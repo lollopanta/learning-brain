@@ -1,0 +1,9 @@
+{
+  "name": "learning-brain",
+  "version": "0.3.0",
+  "description": "Capture durable findings, review evidence-linked proposals, and recall bounded vault context.",
+  "license": "GPL-3.0-only",
+  "repository": "https://github.com/lollopanta/learning-brain",
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json"
+}

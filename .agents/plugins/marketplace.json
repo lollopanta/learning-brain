@@ -1,0 +1,10 @@
+{
+  "name": "learning-brain-local",
+  "interface": {"displayName": "Learning Brain (local)"},
+  "plugins": [{
+    "name": "learning-brain",
+    "source": {"source": "local", "path": "./integrations/codex"},
+    "policy": {"installation": "AVAILABLE", "authentication": "ON_USE"},
+    "category": "Productivity"
+  }]
+}
